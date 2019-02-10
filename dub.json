@@ -1,0 +1,9 @@
+{
+	"name": "noded",
+	"authors": [
+		"tanitta"
+	],
+	"description": "A minimal D application.",
+	"copyright": "Copyright © 2019, tanitta",
+	"license": "proprietary"
+}
