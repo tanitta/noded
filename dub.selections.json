@@ -1,0 +1,7 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"rx": "0.10.1",
+		"topological-sort": "1.0.1"
+	}
+}
