@@ -3,7 +3,6 @@ module noded.graph;
 import rx;
 import noded.port;
 import noded.node;
-// import noded.port;
 
 class Graph{
     private alias this This;
@@ -11,18 +10,15 @@ class Graph{
 
         This add(Node node){
             _nodes ~= node;
-            import topologicalsort;
             node.changeStruct.doSubscribe!((ChangeStructEvent e){
-                auto sortedDAG = e.affectedNodes.generateDAG
-                                                .topologicalSort;
+                auto sortedDAG = e.affectedNodes.topsortNode;
                 foreach (node; sortedDAG) {
                     node.update();
                 }
             });
 
             node.changeValue.doSubscribe!((ChangeValueEvent e){
-                auto sortedDAG = e.affectedNodes.generateDAG
-                                                .topologicalSort;
+                auto sortedDAG = e.affectedNodes.topsortNode;
                 foreach (node; sortedDAG) {
                     node.update();
                 }
@@ -48,14 +44,17 @@ class Graph{
             return _nodes.length;
         }
 
-        This topsort(){
-            return this;
-        }
     }
 
     private{
         Node[] _nodes;
     }
+}
+
+Node[] topsortNode(Node[] nonsorted){
+    import topologicalsort;
+    return nonsorted.generateDAG
+                    .topologicalSort;
 }
 
 unittest{
@@ -79,7 +78,6 @@ private Node[][] generateDAG(Node[] nodes){
         }
     }
     return result;
-
 }
 
 unittest{
@@ -95,9 +93,13 @@ unittest{
     node4.inputs ~= port!float(node4);
     node4.outputs ~= port!float(node4);
 
-    // Node.addConnection(node1.outputs[0], node2.inputs[0]);
     node1.outputs[0].addConnection(node2.inputs[0]);
     node1.outputs[0].addConnection(node3.inputs[0]);
     node2.outputs[0].addConnection(node4.inputs[0]);
     node3.outputs[0].addConnection(node4.inputs[0]);
+
+    auto nodes = [node2, node1, node4, node3];
+    auto sorted = nodes.topsortNode;
+    assert(sorted[0] == nodes[1]);
+    assert(sorted[3] == nodes[2]);
 }
